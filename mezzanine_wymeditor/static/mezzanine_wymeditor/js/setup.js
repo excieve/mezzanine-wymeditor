@@ -16,7 +16,7 @@ $(function() {
 
             e.preventDefault();
 
-            browseMediaLibrary(function(url) {
+            mediaLibrary.open(function(url) {
                 if (url) {
                     wym._exec(WYMeditor.INSERT_IMAGE, stamp);
 

@@ -3,6 +3,21 @@ WYMeditor for Mezzanine
 
 This is `WYMeditor <http://wymeditor.github.io/wymeditor/>`_ adapted as richtext widget for `Mezzanine CMS <http://mezzanine.jupo.org/>`_. It includes basic WYMeditor distribution along with custom image button for use with `filebrowser-safe <https://github.com/stephenmcd/filebrowser-safe>`_.
 
+Screenshots
+-----------
+
+WYMeditor widget in Mezzanine admin:
+
+   .. image:: http://excieve.github.com/mezzanine-wymeditor/img/mezzanine_wymeditor_admin.jpg
+
+With a media library popup:
+
+   .. image:: http://excieve.github.com/mezzanine-wymeditor/img/mezzanine_wymeditor_gallery.jpg
+
+With inline editing:
+
+   .. image:: http://excieve.github.com/mezzanine-wymeditor/img/mezzanine_wymeditor_inline.jpg
+
 Installation
 ------------
 

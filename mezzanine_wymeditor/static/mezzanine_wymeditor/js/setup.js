@@ -11,12 +11,12 @@ $(function() {
         wymBox.find(wym._options.toolsSelector + wym._options.toolsListSelector)
             .append(html);
         wymBox.find('.wym_tools_internal_image').click(function(e) {
-            var stamp = wym.uniqueStamp(),
-                img;
-
             e.preventDefault();
 
             mediaLibrary.open(function(url) {
+                var stamp = wym.uniqueStamp(),
+                    img;
+
                 if (url) {
                     wym._exec(WYMeditor.INSERT_IMAGE, stamp);
 

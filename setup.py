@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='mezzanine-wymeditor',
-    version='0.1',
+    version='0.2',
     author='Artem Hluvchynskyi',
     author_email='excieve@gmail.com',
     description='WYMeditor RichText widget for Mezzanine',

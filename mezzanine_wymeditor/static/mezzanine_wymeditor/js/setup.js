@@ -29,6 +29,7 @@ $(function() {
 
     $('.wymeditor').wymeditor({
         logoHtml: '',
+        lang: window.__language_code || 'en',
         updateSelector: 'input[type=submit],',
         updateEvent: 'click',
         containersItems: [

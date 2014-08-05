@@ -1,4 +1,4 @@
-$(function() {
+jQuery(function($) {
     'use strict';
 
     var wymInternalImage = function(wym) {
@@ -26,6 +26,30 @@ $(function() {
             }, 'image');
         });
     };
+
+    // Apparently some versions of jQuery, even though still support the
+    // "browser" property, don't include all kinds of detection, which breaks
+    // WYMeditor's attempts to assign a proper editor implementation.
+    var setupjQueryBrowser = function() {
+        var matched = $.uaMatch(navigator.userAgent),
+            browser = {};
+
+        if (matched.browser) {
+            browser[matched.browser] = true;
+            browser.version = matched.version;
+        }
+
+        // Chrome is Webkit, but Webkit is also Safari.
+        if (browser.chrome) {
+            browser.webkit = true;
+        } else if (browser.webkit) {
+            browser.safari = true;
+        }
+
+        $.browser = browser;
+    };
+
+    setupjQueryBrowser();
 
     $('.wymeditor').wymeditor({
         logoHtml: '',

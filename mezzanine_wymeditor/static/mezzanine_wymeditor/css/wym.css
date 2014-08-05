@@ -1,12 +1,16 @@
 .wym_buttons .wym_tools_internal_image .wym_tools_internal_image_link {
-	background: url(../img/filebrowser_icon_show.png) no-repeat 0 3px;
+    background: url(../img/filebrowser_icon_show.png) no-repeat 0 3px;
+}
+
+.wym_area_right li {
+    line-height: 1.2em;
 }
 
 .form-row .wym_box {
-	display: inline-block;
-	width: 900px;
+    display: inline-block;
+    width: 900px;
 }
 
 .ui-dialog.media-library {
-	z-index: 40000 !important;
+    z-index: 40000 !important;
 }

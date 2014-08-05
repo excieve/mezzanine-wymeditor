@@ -59,7 +59,7 @@ If everything goes well default editor will be replaced with WYMeditor everywher
 Caveats
 -------
 
-#. Packaged WYMeditor is version *1.0.0b4*, which means it's a beta. While I consider it to be good enough for everyday use, bugs are possible - please submit them to WYMeditor developers. WYMeditor distribution will be updated upon new releases.
+#. Packaged WYMeditor is version *1.0.0b7*, which means it's a beta. While I consider it to be good enough for everyday use, bugs are possible - please submit them to WYMeditor developers. WYMeditor distribution will be updated upon new releases.
 #. There's a tiny modification to WYMeditor sources to make it detect static URL properly in Mezzanine admin so it's not completely vanilla. There are no other changes to the original source.
 #. There are currently two image buttons on the toolbar. The default one lets you insert an image from arbitrary URL and modify some attributes of existing images. The custom one (with filebrowser icon, always at the end) opens up the media library and lets you choose an image from there, which is immediately inserted at the cursor position.
 #. You may want to disable (or relax) Mezzanine's HTML filtering (``RICHTEXT_FILTER_LEVEL``) as WYMeditor has its own but it's entirely up to you.

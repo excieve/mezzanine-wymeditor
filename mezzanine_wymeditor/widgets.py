@@ -9,6 +9,7 @@ class WymeditorWidget(forms.Textarea):
         css = {
             'all': (
                 'mezzanine/css/smoothness/jquery-ui-1.9.1.custom.min.css',
+                'mezzanine_wymeditor/wymeditor/skins/default/skin.css',
                 'mezzanine_wymeditor/css/wym.css'
             )
         }
@@ -19,6 +20,7 @@ class WymeditorWidget(forms.Textarea):
             'mezzanine_wymeditor/wymeditor/plugins/embed/jquery.wymeditor.embed.js',
             'mezzanine_wymeditor/wymeditor/plugins/table/jquery.wymeditor.table.js',
             'mezzanine_wymeditor/wymeditor/plugins/resizable/jquery.wymeditor.resizable.js',
+            'mezzanine_wymeditor/wymeditor/skins/default/skin.js',
             settings.WYMEDITOR_SETUP_JS
         )
 

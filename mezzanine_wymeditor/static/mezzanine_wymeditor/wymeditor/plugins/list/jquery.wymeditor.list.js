@@ -38,7 +38,7 @@ ListPlugin.prototype.handleKeyDown = function(evt) {
     var wym = WYMeditor.INSTANCES[this.title];
     var listPlugin = wym.listPlugin;
 
-    var container = wym.selected();
+    var container = wym.selectedContainer();
     var name = container.tagName.toLowerCase();
     // We only care about tabs when we're inside a list
     if (name != "li") {
@@ -46,7 +46,7 @@ ListPlugin.prototype.handleKeyDown = function(evt) {
     }
 
     // Handle tab presses
-    if (evt.keyCode == WYMeditor.KEY.TAB) {
+    if (evt.which == WYMeditor.KEY.TAB) {
         if (evt.shiftKey) {
             wym.exec(WYMeditor.OUTDENT);
             return false; // Short-circuit normal tab behavior

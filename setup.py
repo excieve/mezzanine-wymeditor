@@ -28,4 +28,7 @@ setup(
         'Framework :: Django',
         'Environment :: Web Environment'
     ],
+    install_requires=[
+        "mezzanine >= 4.0.0",
+    ],
 )

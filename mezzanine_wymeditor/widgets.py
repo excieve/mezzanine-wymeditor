@@ -14,7 +14,7 @@ class WymeditorWidget(forms.Textarea):
             )
         }
         js = (
-            'mezzanine/js/jquery-ui-1.9.1.custom.min.js',
+            'mezzanine/js/' + settings.JQUERY_UI_FILENAME,
             'filebrowser/js/filebrowser-popup.js',
             'mezzanine_wymeditor/wymeditor/jquery.wymeditor.min.js',
             'mezzanine_wymeditor/wymeditor/plugins/embed/jquery.wymeditor.embed.js',

@@ -1,5 +1,4 @@
 /* jshint maxlen: 90 */
-/* global -$, rangy */
 "use strict";
 
 // In case the script is included on a page without WYMeditor, define the
@@ -9,7 +8,7 @@ if (typeof (WYMeditor) === 'undefined') {
     WYMeditor = {};
     /* jshint +W020 */
     WYMeditor.HEADING_ELEMENTS = ["h1", "h2", "h3", "h4", "h5", "h6"];
-    WYMeditor.KEY = {
+    WYMeditor.KEY_CODE = {
         BACKSPACE: 8,
         ENTER: 13,
         DELETE: 46
@@ -36,7 +35,7 @@ WYMeditor.STRUCTURED_HEADINGS_NUMBERING_SPAN_CLASS = 'wym-structured-heading-num
 // Key codes for the keyup events that the heading numberings should be
 // recalculated on
 WYMeditor.STRUCTURED_HEADINGS_POTENTIAL_HEADING_MODIFICATION_KEYS =
-    [WYMeditor.KEY.BACKSPACE, WYMeditor.KEY.DELETE, WYMeditor.KEY.ENTER];
+    [WYMeditor.KEY_CODE.BACKSPACE, WYMeditor.KEY_CODE.DELETE, WYMeditor.KEY_CODE.ENTER];
 
 /*
     getHeadingLevel
@@ -66,6 +65,7 @@ function getHeadingLevel(heading) {
     @class
 */
 function StructuredHeadingsManager(options, wym) {
+    var shm = this;
     options = jQuery.extend({
         headingIndentToolSelector: "li.wym_tools_indent a",
         headingOutdentToolSelector: "li.wym_tools_outdent a",
@@ -93,15 +93,15 @@ function StructuredHeadingsManager(options, wym) {
 
     }, options);
 
-    this._headingElements = WYMeditor.HEADING_ELEMENTS
+    shm._headingElements = WYMeditor.HEADING_ELEMENTS
         .slice(options.highestAllowableHeadingLevel - 1,
                options.lowestAllowableHeadingLevel);
-    this._limitedHeadingSel = this._headingElements.join(", ");
-    this._fullHeadingSel = WYMeditor.HEADING_ELEMENTS.join(", ");
-    this._options = options;
-    this._wym = wym;
+    shm._limitedHeadingSel = shm._headingElements.join(", ");
+    shm._fullHeadingSel = WYMeditor.HEADING_ELEMENTS.join(", ");
+    shm._options = options;
+    shm._wym = wym;
 
-    this.init();
+    shm.init();
 }
 
 /**
@@ -110,17 +110,13 @@ function StructuredHeadingsManager(options, wym) {
 
     Initializes the heading structure object used in the plugin for the
     wymeditor instance. Creates the user interface adjustments, binds any
-    required listeners, applies the necessary CSS stylesheets, and enables the
-    IE7 heading numbering polyfill if necessary.
+    required listeners, and applies the necessary CSS stylesheets.
 */
 StructuredHeadingsManager.prototype.init = function () {
-    this.createUI();
-    this.bindEvents();
-    this.addCssStylesheet();
-
-    if (WYMeditor.STRUCTURED_HEADINGS_POLYFILL_REQUIRED) {
-        this.enableIE7Polyfill();
-    }
+    var shm = this;
+    shm.createUI();
+    shm.bindEvents();
+    shm.addCssStylesheet();
 };
 
 /**
@@ -131,7 +127,8 @@ StructuredHeadingsManager.prototype.init = function () {
     tool bar and modifying the container selection panel.
 */
 StructuredHeadingsManager.prototype.createUI = function () {
-    var wym = this._wym,
+    var shm = this,
+        wym = shm._wym,
         $tools = jQuery(wym._box).find(
             wym._options.toolsSelector + wym._options.toolsListSelector
         ),
@@ -140,8 +137,8 @@ StructuredHeadingsManager.prototype.createUI = function () {
         i;
 
     // Add tool panel buttons if necessary
-    if (this._options.enableFixHeadingStructureButton) {
-        $tools.append(this._options.fixHeadingStructureButtonHtml);
+    if (shm._options.enableFixHeadingStructureButton) {
+        $tools.append(shm._options.fixHeadingStructureButtonHtml);
     }
 
     // Remove normal heading links from the containers panel list
@@ -156,7 +153,7 @@ StructuredHeadingsManager.prototype.createUI = function () {
     }
 
     // Add new single heading container to the containers panel list
-    $containerItems.eq(0).after(this._options.headingContainerPanelHtml);
+    $containerItems.eq(0).after(shm._options.headingContainerPanelHtml);
 };
 
 /**
@@ -167,29 +164,29 @@ StructuredHeadingsManager.prototype.createUI = function () {
     link in the containers panel.
 */
 StructuredHeadingsManager.prototype.bindEvents = function () {
-    var headingManager = this,
-        wym = this._wym,
-        $box = jQuery(wym._box);
+    var shm = this,
+        wym = shm._wym,
+        $box = jQuery(wym._box),
+        sel;
 
     // Bind click events to tool buttons
-    $box.find(this._options.headingOutdentToolSelector).click(function () {
-        var sel = rangy.getIframeSelection(wym._iframe);
-        headingManager.changeSelectedHeadingsLevel(sel, "up");
+    $box.find(shm._options.headingOutdentToolSelector).click(function () {
+        sel = wym.selection();
+        shm.changeSelectedHeadingsLevel(sel, "up");
     });
-    $box.find(this._options.headingIndentToolSelector).click(function () {
-        var sel = rangy.getIframeSelection(wym._iframe);
-        headingManager.changeSelectedHeadingsLevel(sel, "down");
+    $box.find(shm._options.headingIndentToolSelector).click(function () {
+        sel = wym.selection();
+        shm.changeSelectedHeadingsLevel(sel, "down");
     });
-    if (this._options.enableFixHeadingStructureButton) {
-        $box.find(this._options.fixHeadingStructureSelector).click(function () {
-            headingManager.fixHeadingStructure();
+    if (shm._options.enableFixHeadingStructureButton) {
+        $box.find(shm._options.fixHeadingStructureSelector).click(function () {
+            shm.fixHeadingStructure();
         });
     }
 
     // Bind click event to the new single heading link
-    $box.find(this._options.headingContainerPanelSelector).click(function () {
-        var container = wym.findUp(wym.mainContainer(), WYMeditor.MAIN_CONTAINERS);
-        headingManager.switchToHeading(container);
+    $box.find(shm._options.headingContainerPanelSelector).click(function () {
+        shm.switchToHeading(wym.getRootContainer());
     });
 };
 
@@ -201,7 +198,8 @@ StructuredHeadingsManager.prototype.bindEvents = function () {
     and stores the CSS for access through the printCss function.
 */
 StructuredHeadingsManager.prototype.addCssStylesheet = function () {
-    var wym = this._wym,
+    var shm = this,
+        wym = shm._wym,
         iframeHead = jQuery(wym._doc).find('head')[0],
         stylesheetHref,
         cssLink,
@@ -211,20 +209,9 @@ StructuredHeadingsManager.prototype.addCssStylesheet = function () {
     cssLink.rel = 'stylesheet';
     cssLink.type = 'text/css';
 
-    if (WYMeditor.STRUCTURED_HEADINGS_POLYFILL_REQUIRED) {
-        stylesheetHref = '/plugins/structured_headings/' +
-                         'structured_headings_ie7_editor.css';
-        cssLink.href = '../..' + stylesheetHref; // Adjust path for iframe
-        iframeHead.appendChild(cssLink);
-
-        // Change href to user stylesheet to store in WYMeditor
-        stylesheetHref = stylesheetHref.replace(/editor.css$/, 'user.css');
-
-    } else {
-        stylesheetHref = '/plugins/structured_headings/structured_headings.css';
-        cssLink.href = '../..' + stylesheetHref; // Adjust path for iframe
-        iframeHead.appendChild(cssLink);
-    }
+    stylesheetHref = '/plugins/structured_headings/structured_headings.css';
+    cssLink.href = '../..' + stylesheetHref; // Adjust path for iframe
+    iframeHead.appendChild(cssLink);
 
     // Get stylesheet CSS and store it in WYMeditor so that it can be accessed
     // to put on other pages.
@@ -246,20 +233,21 @@ StructuredHeadingsManager.prototype.addCssStylesheet = function () {
                    heading level raised
 */
 StructuredHeadingsManager.prototype.canRaiseHeadingLevel = function (heading) {
-    var headingLevel = getHeadingLevel(heading),
+    var shm = this,
+        headingLevel = getHeadingLevel(heading),
         headingLevelDifference,
         nextHeading,
         nextHeadingLevel;
 
     // The level of a heading cannot be raised if it is already at the highest
     // allowable level.
-    if (headingLevel === this._options.highestAllowableHeadingLevel) {
+    if (headingLevel === shm._options.highestAllowableHeadingLevel) {
         return false;
     }
 
     // The level of a heading cannot be raised if the heading level is any
     // higher than the level of its following heading.
-    nextHeading = jQuery(heading).nextAll(this._fullHeadingSel)[0];
+    nextHeading = jQuery(heading).nextAll(shm._fullHeadingSel)[0];
     if (nextHeading) {
         nextHeadingLevel = getHeadingLevel(nextHeading);
         headingLevelDifference = headingLevel - nextHeadingLevel;
@@ -283,20 +271,21 @@ StructuredHeadingsManager.prototype.canRaiseHeadingLevel = function (heading) {
                    heading level lowered
 */
 StructuredHeadingsManager.prototype.canLowerHeadingLevel = function (heading) {
-    var headingLevel = getHeadingLevel(heading),
+    var shm = this,
+        headingLevel = getHeadingLevel(heading),
         headingLevelDifference,
         prevHeading,
         prevHeadingLevel;
 
     // The level of a heading cannot be lowered if it is already at the lowest
     // allowable level.
-    if (headingLevel === this._options.lowestAllowableHeadingLevel) {
+    if (headingLevel === shm._options.lowestAllowableHeadingLevel) {
         return false;
     }
 
     // The user cannot lower the level of a heading if the heading level is any
     // lower than the level of its previous heading.
-    prevHeading = jQuery(heading).prevAll(this._fullHeadingSel)[0];
+    prevHeading = jQuery(heading).prevAll(shm._fullHeadingSel)[0];
     if (prevHeading) {
         prevHeadingLevel = getHeadingLevel(prevHeading);
         headingLevelDifference = prevHeadingLevel - headingLevel;
@@ -334,8 +323,8 @@ StructuredHeadingsManager.prototype.canLowerHeadingLevel = function (heading) {
 StructuredHeadingsManager.prototype.changeSelectedHeadingsLevel = function (
     selection, upOrDown
 ) {
-    var wym = this._wym,
-        headingManager = this,
+    var shm = this,
+        wym = shm._wym,
         shouldRaise = (upOrDown === 'up'),
         i,
         iStart = (shouldRaise ? selection.rangeCount - 1 : 0),
@@ -343,15 +332,11 @@ StructuredHeadingsManager.prototype.changeSelectedHeadingsLevel = function (
         iterChange = (shouldRaise ? -1 : 1),
         range,
         heading,
-        headingList,
+        $headingList,
         j,
         jStart,
         jLimit,
-        headingNodeFilter;
-
-    headingNodeFilter = function (testNode) {
-        return jQuery(testNode).is(headingManager._fullHeadingSel);
-    };
+        $selectedNodes;
 
     // Iterate through the headings in the selection from bottom to top if the
     // level of the headings should be raised or top to bottom if the level of
@@ -362,26 +347,26 @@ StructuredHeadingsManager.prototype.changeSelectedHeadingsLevel = function (
     for (i = iStart; i !== iLimit; i += iterChange) {
         range = selection.getRangeAt(i);
         if (range.collapsed) {
-            // Collapsed ranges don't return their node with getNodes(), so
-            // use findUp to get the containing heading.
             heading = wym.findUp(range.startContainer,
                                  WYMeditor.HEADING_ELEMENTS);
-            this.changeHeadingLevel(heading, upOrDown);
+            shm.changeHeadingLevel(heading, upOrDown);
         } else {
-            // Use getNodes to get the selected headings
-            headingList = range.getNodes(false, headingNodeFilter);
-            if (!headingList.length && range.getNodes().length) {
+            $selectedNodes = jQuery(wym._getSelectedNodes());
+            $headingList = $selectedNodes.filter(shm._fullHeadingSel);
+            if (!$headingList.length && $selectedNodes.length) {
                 // If there are some nodes in the range, but none of the are
                 // headings, it's possible that all of the nodes are contained
                 // within a heading.
-                headingList = [wym.findUp(range.getNodes()[0],
-                                          WYMeditor.HEADING_ELEMENTS)];
+                $headingList = [wym.findUp(
+                    $selectedNodes[0],
+                    WYMeditor.HEADING_ELEMENTS
+                )];
             }
 
-            jStart = (shouldRaise ? headingList.length - 1 : 0);
-            jLimit = (shouldRaise ? -1 : headingList.length);
+            jStart = (shouldRaise ? $headingList.length - 1 : 0);
+            jLimit = (shouldRaise ? -1 : $headingList.length);
             for (j = jStart; j !== jLimit; j += iterChange) {
-                this.changeHeadingLevel(headingList[j], upOrDown);
+                shm.changeHeadingLevel($headingList[j], upOrDown);
             }
         }
     }
@@ -405,7 +390,8 @@ StructuredHeadingsManager.prototype.changeSelectedHeadingsLevel = function (
 StructuredHeadingsManager.prototype.changeHeadingLevel = function (
     heading, upOrDown
 ) {
-    var wym = this._wym,
+    var shm = this,
+        wym = shm._wym,
         changeLevelUp = (upOrDown === "up"),
         levelAdjustment = (changeLevelUp ? -1 : 1),
         headingLevel;
@@ -418,17 +404,14 @@ StructuredHeadingsManager.prototype.changeHeadingLevel = function (
     // Check if the requested change in the heading level is valid. If it is
     // not valid, don't modify the heading.
     headingLevel = getHeadingLevel(heading);
-    if (changeLevelUp && !this.canRaiseHeadingLevel(heading)) {
+    if (changeLevelUp && !shm.canRaiseHeadingLevel(heading)) {
         return;
     }
-    if (!changeLevelUp && !this.canLowerHeadingLevel(heading)) {
+    if (!changeLevelUp && !shm.canLowerHeadingLevel(heading)) {
         return;
     }
 
     wym.switchTo(heading, 'h' + (headingLevel + levelAdjustment));
-    if (WYMeditor.STRUCTURED_HEADINGS_POLYFILL_REQUIRED) {
-        this.numberHeadingsIE7();
-    }
 };
 
 /**
@@ -443,7 +426,8 @@ StructuredHeadingsManager.prototype.changeHeadingLevel = function (
     @param node The DOM node to be switched to a heading.
 */
 StructuredHeadingsManager.prototype.switchToHeading = function (node) {
-    var wym = this._wym,
+    var shm = this,
+        wym = shm._wym,
         $prevHeading;
 
     // If the node doesn't exist, don't do anything.
@@ -451,15 +435,11 @@ StructuredHeadingsManager.prototype.switchToHeading = function (node) {
         return;
     }
 
-    $prevHeading = jQuery(node).prev(this._fullHeadingSel);
+    $prevHeading = jQuery(node).prev(shm._fullHeadingSel);
     if ($prevHeading.length) {
         wym.switchTo(node, $prevHeading[0].nodeName);
     } else {
-        wym.switchTo(node, 'h' + this._options.highestAllowableHeadingLevel);
-    }
-
-    if (WYMeditor.STRUCTURED_HEADINGS_POLYFILL_REQUIRED) {
-        this.numberHeadingsIE7();
+        wym.switchTo(node, 'h' + shm._options.highestAllowableHeadingLevel);
     }
 };
 
@@ -476,9 +456,9 @@ StructuredHeadingsManager.prototype.switchToHeading = function (node) {
     make it smarter.
 */
 StructuredHeadingsManager.prototype.fixHeadingStructure = function () {
-    var wym = this._wym,
-        $headings = jQuery(wym._doc).find('body.wym_iframe')
-                                    .find(this._limitedHeadingSel),
+    var shm = this,
+        wym = shm._wym,
+        $headings = wym.$body().find(shm._limitedHeadingSel),
         heading,
         headingLevel,
         prevHeadingLevel,
@@ -503,179 +483,6 @@ StructuredHeadingsManager.prototype.fixHeadingStructure = function () {
 };
 
 /**
-    enableIE7Polyfill
-    =================
-
-    Enables Javascript polyfill to add heading numbering to IE versions 7
-    and lower.
-*/
-StructuredHeadingsManager.prototype.enableIE7Polyfill = function () {
-    var wym = this._wym,
-        headingManager = this,
-        $body = jQuery(wym._doc).find('body.wym_iframe'),
-        $containersPanelLinks = jQuery(wym._box)
-            .find(wym._options.containersSelector + ' li > a'),
-        prevHeadingTotal = 0,
-        prevSpanCharTotal = 0;
-
-    $body.keyup(function (evt) {
-        if (jQuery.inArray(evt.which,
-            WYMeditor.STRUCTURED_HEADINGS_POTENTIAL_HEADING_MODIFICATION_KEYS) > -1) {
-
-            var headingTotal = $body.find(headingManager._limitedHeadingSel).length,
-                spanCharTotal = 0;
-
-            $body.find('.' + WYMeditor.STRUCTURED_HEADINGS_NUMBERING_SPAN_CLASS)
-                 .each(function () {
-
-                spanCharTotal += this.innerHTML.length;
-            });
-
-            if (headingTotal !== prevHeadingTotal ||
-                spanCharTotal !== prevSpanCharTotal) {
-
-                prevSpanCharTotal = headingManager.numberHeadingsIE7();
-            }
-
-            prevHeadingTotal = headingTotal;
-        }
-    });
-
-    $containersPanelLinks.click(function () {
-        headingManager.numberHeadingsIE7();
-    });
-};
-
-/*
-    numberHeadingsIE7
-    =================
-
-    Stand-alone function from WYMeditor that manually numbers the headings in a
-    document using javascript to mimic the heading numbering generated by the
-    structured headings plugin using CSS in browsers that support CSS counters
-    and :before pseudo-elements. Meant in particular to add structured heading
-    support to IE7.
-
-    The doc parameter specifies the document which contains the headings to be
-    numbered. It defaults to the document object of the page if the parameter
-    isn't given. The addClass parameter specifies whether the structured
-    headings classes need to be added to the headings as the numbering is added
-    to the headings. It defaults to false if the parameter isn't given.
-
-    Both of these parameters are optional so that, in most cases, if a user is
-    calling this function on a page to number a document's headings outside of
-    the editor, they can call the function with no parameters.
-
-    The function returns the total number of characters in all of the added
-    heading numbering spans so that it can be monitored if the headings need to
-    be corrected if the total number of characters in the numbering spans
-    changes.
-
-    NOTE: Although this function is stand-alone from WYMeditor, it still
-    requires jQuery.
-*/
-function numberHeadingsIE7(doc, addClass) {
-    doc = typeof doc !== 'undefined' ? doc : document;
-
-    var $doc = jQuery(doc),
-
-        $startNode = $doc.find('.' +
-                               WYMeditor.STRUCTURED_HEADINGS_START_NODE_CLASS),
-        startHeadingLevel,
-        headingSel = WYMeditor.HEADING_ELEMENTS.join(', '),
-
-        $allHeadings,
-        $heading,
-        headingLabel,
-
-        span,
-        spanCharTotal = 0,
-
-        counters = [0, 0, 0, 0, 0, 0],
-        counterIndex,
-        i,
-        j;
-
-    // If no start node is set and addClass is true, set the start node as the
-    // first heading in doc by default.
-    if (addClass) {
-        $startNode = $doc.find(headingSel);
-        if ($startNode.length) {
-            $startNode = $startNode.eq(0);
-            $startNode.addClass(WYMeditor.STRUCTURED_HEADINGS_START_NODE_CLASS);
-        }
-    }
-    // If there are no headings in the document or if no start node is defined
-    // and addClass is false, do nothing.
-    if (!$startNode.length) {
-        return;
-    }
-
-    // startHeadingType is the level of the heading that is the start node.
-    // This is found out by looking at the last character of its nodeName.
-    startHeadingLevel = getHeadingLevel($startNode[0]);
-    $allHeadings = $startNode.nextAll(headingSel).add($startNode);
-
-    // Remove any previously calculated heading numbering
-    $doc.find('.' + WYMeditor.STRUCTURED_HEADINGS_NUMBERING_SPAN_CLASS).remove();
-
-    for (i = 0; i < $allHeadings.length; ++i) {
-        $heading = $allHeadings.eq(i);
-        counterIndex = getHeadingLevel($heading[0]) - startHeadingLevel;
-
-        // If the counterIndex is negative, it means the level of the current
-        // heading is above the level of the start node, so heading numbering
-        // should stop at this point.
-        if (counterIndex < 0) {
-            break;
-        }
-
-        // Calculate the heading label
-        ++counters[counterIndex];
-        headingLabel = '';
-        for (j = 0; j <= counterIndex; ++j) {
-            if (j === counterIndex) {
-                headingLabel += counters[j];
-            } else {
-                headingLabel += counters[j] + '.';
-            }
-        }
-        if (addClass) {
-            $heading.addClass(
-                WYMeditor.STRUCTURED_HEADINGS_LEVEL_CLASSES[counterIndex]);
-        }
-
-        // Prepend span containing the heading's label to heading
-        span = doc.createElement('span');
-        span.innerHTML = headingLabel;
-        span.className = WYMeditor.STRUCTURED_HEADINGS_NUMBERING_SPAN_CLASS;
-        if (addClass) {
-            span.className += ' ' + WYMeditor.EDITOR_ONLY_CLASS;
-        }
-        $heading.prepend(span);
-        spanCharTotal += (counterIndex * 2) + 1;
-
-        // Reset counters below the heading's level
-        for (j = counterIndex + 1; j < counters.length; ++j) {
-            counters[j] = 0;
-        }
-    }
-
-    return spanCharTotal;
-}
-
-/**
-    numberHeadingsIE7
-    =================
-
-    A method of Structured Headings Manager objects that wraps the
-    numberHeadingsIE7 function in the plugin file for easier use.
-*/
-StructuredHeadingsManager.prototype.numberHeadingsIE7 = function () {
-    numberHeadingsIE7(this._wym._doc, true);
-};
-
-/**
     WYMeditor.printStructuredHeadingsCss
     ====================================
 
@@ -697,8 +504,9 @@ WYMeditor.printStructuredHeadingsCSS = function () {
     @param options A configuration object.
 */
 WYMeditor.editor.prototype.structuredHeadings = function (options) {
-    var structuredHeadingsManager = new StructuredHeadingsManager(options, this);
-    this.structuredHeadingsManager = structuredHeadingsManager;
+    var wym = this,
+    structuredHeadingsManager = new StructuredHeadingsManager(options, wym);
+    wym.structuredHeadingsManager = structuredHeadingsManager;
 
     return structuredHeadingsManager;
 };

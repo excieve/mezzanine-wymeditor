@@ -55,6 +55,28 @@ Additionally you may override WYMeditor initialisation code (to set your own con
 
 If everything goes well default editor will be replaced with WYMeditor everywhere.
 
+Building from Source
+--------------------
+
+- `Configure the build environment. <https://wymeditor.readthedocs.org/en/v1.0.0/wymeditor_development/contributing.html#configuring-your-development-environment/>`_
+- Remove the following lines from ``wymeditor/src/wymeditor/core.js``::
+
+                    ) ||
+                    s.src.match(
+                            /\/core\.js(\?.*)?$/
+Which will leave::
+
+        return (
+          s.src.match(
+             /jquery\.wymeditor(\.pack|\.min|\.packed)?\.js(\?.*)?$/
+                      )
+               );
+- `Build <https://wymeditor.readthedocs.org/en/v1.0.0/wymeditor_development/building_wymeditor.html/>`_:
+
+    grunt build
+- Copy the source files into `mezzanine-wymeditor`:
+
+    cp -r wymeditor/dist/wymeditor mezzanine-wymeditor/mezzanine-wymeditor/static/mezzanine-wymeditor/
 
 Caveats
 -------
